@@ -14,15 +14,58 @@ const initialStateTodos = [
 ];
 const App = () => {
     const [todos, setTodos] = useState(initialStateTodos);
+    const createTodo = (title) => {
+        const newTodo = {
+            id: Date.now(),
+            title,
+            completed: false,
+        };
+        setTodos([...todos, newTodo]);
+    };
+    const removeTodo = (id) => {
+        setTodos(todos.filter((e) => e.id !== id));
+    };
+    const updateTodo = (id) => {
+        setTodos(
+            todos.map((e) =>
+                e.id === id ? { ...e, completed: !e.completed } : e
+            )
+        );
+    };
+    const computedItemsLeft = todos.filter((e) => !e.completed).length;
+    const clearCompleted = () => {
+        setTodos(todos.filter((e) => !e.completed));
+    };
+    const [filter, setFilter] = useState("all");
+    const changeFilter = (filter) => setFilter(filter);
+    const filterTodos = () => {
+        switch (filter) {
+            case "all":
+                return todos;
+            case "active":
+                return todos.filter((e) => !e.completed);
+            case "completed":
+                return todos.filter((e) => e.completed);
+            default:
+                return todos;
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-300 bg-[url('./assets/images/bg-mobile-light.jpg')] bg-contain bg-no-repeat">
             <Header />
             <main className="container mx-auto mt-8 px-4">
-                <TodoCreate />
-                <TodoList todos={todos} />
-                <TodoComputed />
-                <TodoFilter />
+                <TodoCreate createTodo={createTodo} />
+                <TodoList
+                    todos={filterTodos()}
+                    removeTodo={removeTodo}
+                    updateTodo={updateTodo}
+                />
+                <TodoComputed
+                    computedItemsLeft={computedItemsLeft}
+                    clearCompleted={clearCompleted}
+                />
+                <TodoFilter changeFilter={changeFilter} filter={filter} />
             </main>
             <footer className="mt-8 text-center">Drag and drop</footer>
         </div>
